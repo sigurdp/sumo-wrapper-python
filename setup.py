@@ -14,7 +14,7 @@ setup(
         'Programming Language :: Python :: 3.7'
         'Programming Language :: Python :: 3.8'
         ],
-    version='0.1.4',
+    version='0.1.3',
     author='Equinor ASA',
     author_email='llag@equinor.com',
     install_requires=[
