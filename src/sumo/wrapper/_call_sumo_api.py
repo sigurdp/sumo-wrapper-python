@@ -285,17 +285,18 @@ class CallSumoApi:
         _ = self.save_blob(blob, url=blob_url, bearer=bearer)
         return response_json
 
-    def aggregate_surfaces(self, operation, object_ids, bearer=None):
+    def aggregate_surfaces(self, operation, object_ids, nan_as_zero="false", bearer=None):
         """
             Perform an aggregation on surfaces described by the operation parameter for 
             the objects in the object_ids list. A new surface object is returned.
 
             Parameters
-                operation: string, the operation to perfomr. MEAN, MEDIAN, MIN, MAX, STD
+                operation: list of strings, the operations to perfome: MEAN, MEDIAN, MIN, MAX, STD
                                    and PXX for a specific percentile. 
                 object_ids: list, the object-ids to
                 bearer: string, Azure OAuth2 bear token Default: will create one.
-
+                nan_as_zero: value that decides if NaN values in surfaces should be 
+                                    zero (nan_as_zero = "true") or stay as NaN (default). 
             Return
                 surface: The aggregated surface
         """
@@ -303,6 +304,7 @@ class CallSumoApi:
         json = {}
         json['operation'] = operation
         json['object_ids'] = object_ids
+        json['nan_as_zero'] = nan_as_zero
         url = f'{self.base_url}/aggregate'
         return self._post_objects(url = url, json=json, bearer=bearer)
 
