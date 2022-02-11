@@ -37,8 +37,7 @@ class SumoThinClient:
                 client_id=self.client_id,
                 resource_id=self.resource_id,
                 authority=self.authority_uri,
-                writeback=write_back,
-                logging_level=logging_level
+                writeback=write_back
             )
 
             self.access_token = self.auth.get_token()
@@ -60,7 +59,16 @@ class SumoThinClient:
         self.logger.debug("returning self.access_token from _retrieve_token")
         return self.access_token
 
-    def get(self, path, params=None):
+    def _process_params(self, params_dict):
+        prefixed_params = {}
+
+        for param_key in params_dict:
+            prefixed_params[f"${param_key}"] = params_dict[param_key]
+
+        return None if prefixed_params == {} else prefixed_params
+
+
+    def get(self, path, **params):
         token = self._retrieve_token()
 
         headers = {
@@ -70,7 +78,7 @@ class SumoThinClient:
 
         response = requests.get(
             f'{self.base_url}{path}',
-            params=params,
+            params=self._process_params(params),
             headers=headers
         )
 

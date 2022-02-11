@@ -123,20 +123,14 @@ def test_upload_search_delete_ensemble_child():
     # Search for ensemble
     query = f"{fmu_case_id}"
 
-    search_results = C.api.get("/searchroot", {
-        "$query": query,
-        "$select": ["_source"]
-    })
+    search_results = C.api.get("/searchroot", query=query, select=["_source"])
 
     hits = search_results.get("hits").get("hits")
     assert len(hits) == 1
     assert hits[0].get("_id") == case_id
 
     # Search for child object
-    search_results = C.api.get("/search", {
-        "$query": query,
-        "$select": ["_source"]
-    })
+    search_results = C.api.get("/search", query=query, select=["_source"])
 
     total = search_results.get("hits").get("total").get("value")
     assert total == 2
@@ -155,20 +149,14 @@ def test_upload_search_delete_ensemble_child():
     sleep(4)
 
     # Search for ensemble
-    search_results = C.api.get("/searchroot", {
-        "$query": query,
-        "$select": ["_source"]
-    })
+    search_results = C.api.get("/searchroot", query=query, select=["_source"])
 
     hits = search_results.get("hits").get("hits")
 
     assert len(hits) == 0
 
     # Search for child object
-    search_results = C.api.get("/search", {
-        "$query": query,
-        "$select": ["_source"]
-    })
+    search_results = C.api.get("/search", query=query, select=["_source"])
     total = search_results.get("hits").get("total").get("value")
     assert total == 0
 
