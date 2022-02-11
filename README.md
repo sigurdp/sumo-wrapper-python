@@ -156,10 +156,10 @@ sumo.get(f"/objects('{object_id}')")
 
 For a full list of available endpoints, visit:
 
-- Prod: https://main-sumo-prod.radix.equinor.com/swagger-ui
-- Dev: https://main-sumo-dev.radix.equinor.com/swagger-ui
-- Test: https://main-sumo-test.radix.equinor.com/swagger-ui
-- Preview: https://main-sumo-preview.radix.equinor.com/swagger-ui
+- Prod: https://main-sumo-prod.radix.equinor.com/swagger-ui/
+- Dev: https://main-sumo-dev.radix.equinor.com/swagger-ui/
+- Test: https://main-sumo-test.radix.equinor.com/swagger-ui/
+- Preview: https://main-sumo-preview.radix.equinor.com/swagger-ui/
 
 ### get(path, **params)
 Performs a GET-request to sumo-core. Accepts query parameters as keyword arguments.
