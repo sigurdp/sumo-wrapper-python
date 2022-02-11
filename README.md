@@ -154,7 +154,7 @@ object_id = "1234"
 sumo.get(f"/objects('{object_id}')")
 ```
 
-Full a full list of available endpoints, visit:
+For a full list of available endpoints, visit:
 
 - Prod: https://main-sumo-prod.radix.equinor.com/swagger-ui
 - Dev: https://main-sumo-dev.radix.equinor.com/swagger-ui
