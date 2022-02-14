@@ -15,7 +15,7 @@ For internal Equinor users, this package is available through the Komodo distrib
   - [Examples](#examples)
     - [search()](#search)
     - [searchroot()](#searchroot)
-- [SumoThinClient](#sumothinclient)
+- [SumoClient](#SumoClient)
     - [Initialization](#initialization)
     - [Parameters](#parameters)
   - [Methods](#methods)
@@ -109,21 +109,21 @@ peesv_objects = sumo.searchroot(
 )
 ```
 
-# SumoThinClient
+# SumoClient
 An ultra thin wrapper class.
 
 ### Initialization
 
 ```python
-from sumo.wrapper import SumoThinClient
+from sumo.wrapper import SumoClient
 
-sumo = SumoThinClient(env="dev")
+sumo = SumoClient(env="dev")
 ```
 
 ### Parameters
 
 ```python
-class SumoThinClient:
+class SumoClient:
     def __init__(
         self,
         env,
@@ -143,7 +143,7 @@ class SumoThinClient:
 If no `access_token` is provided, an authentication code flow is triggered to retrieve a token.
 
 ## Methods
-`SumoThinClient` has one method for each HTTP-method that is used in the sumo-core API. See examples of how to use these methods below.
+`SumoClient` has one method for each HTTP-method that is used in the sumo-core API. See examples of how to use these methods below.
 
 
 All methods accepts a path argument. Path parameters can be interpolated into the path string. Example:
@@ -153,13 +153,6 @@ object_id = "1234"
 # GET/objects('{obejctid}')
 sumo.get(f"/objects('{object_id}')")
 ```
-
-For a full list of available endpoints, visit:
-
-- Prod: https://main-sumo-prod.radix.equinor.com/swagger-ui/
-- Dev: https://main-sumo-dev.radix.equinor.com/swagger-ui/
-- Test: https://main-sumo-test.radix.equinor.com/swagger-ui/
-- Preview: https://main-sumo-preview.radix.equinor.com/swagger-ui/
 
 ### get(path, **params)
 Performs a GET-request to sumo-core. Accepts query parameters as keyword arguments.

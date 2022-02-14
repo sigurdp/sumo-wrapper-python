@@ -11,7 +11,7 @@ logging.basicConfig(
 )
 
 
-class SumoThinClient:
+class SumoClient:
     def __init__(
         self,
         env,
