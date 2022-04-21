@@ -13,7 +13,7 @@ from sumo.wrapper import SumoClient
 
 class Connection:
     def __init__(self):
-        self.api = SumoClient(env="preview", logging_level="DEBUG")
+        self.api = SumoClient(env="dev", logging_level="DEBUG")
 
 
 def _upload_parent_object(C, json):
