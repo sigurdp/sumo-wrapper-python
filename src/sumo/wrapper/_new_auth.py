@@ -58,6 +58,11 @@ class NewAuth:
                 print(flow["message"])
                 result = self.msal.acquire_token_by_device_flow(flow)
 
+                if "error" in result:
+                    raise ValueError(
+                        "Failed to create device flow. Err: %s" % json.dumps(flow, indent=4)
+                    )
+
         return result["access_token"]
 
 
