@@ -15,20 +15,17 @@ class NewAuth:
         tenant_id,
         interactive=False
     ):
-        self.client_id = client_id
-        self.resource_id = resource_id
-        self.tenant_id = tenant_id
         self.interactive = interactive
-        self.scope = self.resource_id + "/.default"
+        self.scope = resource_id + "/.default"
 
         self.token_path = os.path.join(
-            HOME_DIR, ".sumo", str(self.resource_id) + ".token"
+            HOME_DIR, ".sumo", str(resource_id) + ".token"
         )
 
         self.cache = self.__load_cache()
         self.msal = msal.PublicClientApplication(
-            client_id=self.client_id,
-            authority=f"{AUTHORITY_HOST_URI}/{self.tenant_id}", 
+            client_id=client_id,
+            authority=f"{AUTHORITY_HOST_URI}/{tenant_id}", 
             token_cache=self.cache
         )
 

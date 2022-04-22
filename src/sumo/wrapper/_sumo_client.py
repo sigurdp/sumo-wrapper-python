@@ -11,18 +11,14 @@ class SumoClient:
         access_token=None,
         interactive=False
     ):
-        self.env = env
         self.access_token = access_token
 
         if env not in APP_REGISTRATION:
             raise ValueError(f"Invalid environment: {env}")
-
-        self.client_id = APP_REGISTRATION[env]['CLIENT_ID']
-        self.resource_id = APP_REGISTRATION[env]['RESOURCE_ID']
         
         self.auth = NewAuth(
-            client_id=self.client_id,
-            resource_id=self.resource_id,
+            client_id=APP_REGISTRATION[env]['CLIENT_ID'],
+            resource_id=APP_REGISTRATION[env]['RESOURCE_ID'],
             tenant_id=TENANT_ID,
             interactive=interactive
         )
@@ -152,9 +148,6 @@ class SumoClient:
         """
         Raise the proper authentication error according to the code received from sumo.
         """
-
-        self.logger.debug("code: %s", code)
-        self.logger.debug("message: %s", message)
 
         if 503 <= code <= 504 or code == 404 or code == 500:
             raise TransientError(code, message)
