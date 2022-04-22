@@ -1,4 +1,4 @@
-msal~=1.5.1
+msal~=1.17.0
 requests~=2.24.0
 pytest~=6.1.1
 PyYAML>=5.4
