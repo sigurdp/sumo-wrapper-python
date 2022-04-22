@@ -1,4 +1,4 @@
-from multiprocessing.sharedctypes import Value
+import atexit
 import msal
 import os
 import sys
@@ -32,6 +32,8 @@ class NewAuth:
             token_cache=self.cache
         )
 
+        atexit.register(self.__save_cache)
+
 
     def get_token(self):
         accounts = self.msal.get_accounts()
@@ -59,7 +61,6 @@ class NewAuth:
                 print(flow["message"])
                 result = self.msal.acquire_token_by_device_flow(flow)
 
-        self.__save_cache()
         return result["access_token"]
 
 
