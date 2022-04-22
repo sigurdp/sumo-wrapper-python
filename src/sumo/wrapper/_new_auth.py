@@ -45,14 +45,14 @@ class NewAuth:
 
                 if "error" in result:
                     raise ValueError(
-                        "Fail to acquire token interactively. Err: %s" % json.dumps(flow, indent=4)
+                        "Failed to acquire token interactively. Err: %s" % json.dumps(result, indent=4)
                     )
             else:
                 flow = self.msal.initiate_device_flow([self.scope])
 
-                if "user_code" not in flow:
+                if "error" in flow:
                     raise ValueError(
-                        "Fail to create device flow. Err: %s" % json.dumps(flow, indent=4)
+                        "Failed to create device flow. Err: %s" % json.dumps(flow, indent=4)
                     )
 
                 print(flow["message"])
