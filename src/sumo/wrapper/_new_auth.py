@@ -60,7 +60,7 @@ class NewAuth:
 
                 if "error" in result:
                     raise ValueError(
-                        "Failed to acquire token by device flow. Err: %s" % json.dumps(flow, indent=4)
+                        "Failed to acquire token by device flow. Err: %s" % json.dumps(result, indent=4)
                     )
 
         return result["access_token"]
