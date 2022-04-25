@@ -1,63 +1,65 @@
 import requests
-import logging
+import jwt
+import time
 
-from .config import APP_REGISTRATION, TENANT_ID, AUTHORITY_HOST_URI
-from ._auth import Auth
+from .config import APP_REGISTRATION, TENANT_ID
+from ._new_auth import NewAuth
 from ._request_error import AuthenticationError, TransientError, PermanentError
-
-logging.basicConfig(
-    format="%(asctime)s %(levelname)-8s %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-)
-
 
 class SumoClient:
     def __init__(
         self,
         env,
-        access_token=None,
-        logging_level='INFO',
-        write_back=False
+        token=None,
+        interactive=False
     ):
-        self.env = env
-        self.user_provided_access_token = access_token
-
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(level=logging_level)
-
         if env not in APP_REGISTRATION:
             raise ValueError(f"Invalid environment: {env}")
 
-        self.client_id = APP_REGISTRATION[env]['CLIENT_ID']
-        self.resource_id = APP_REGISTRATION[env]['RESOURCE_ID']
-        self.authority_uri = AUTHORITY_HOST_URI + '/' + TENANT_ID
+        self.access_token = None
+        self.access_token_expires = None
+        self.refresh_token = None
 
-        if not self.user_provided_access_token:
-            self.auth = Auth(
-                client_id=self.client_id,
-                resource_id=self.resource_id,
-                authority=self.authority_uri,
-                writeback=write_back
-            )
+        if token:
+            payload = self.__decode_token(token)
 
-            self.access_token = self.auth.get_token()
+            if payload:
+                self.access_token = token
+                self.access_token_expires = payload["exp"]
+            else:
+                self.refresh_token = token
+
+        self.auth = NewAuth(
+            client_id=APP_REGISTRATION[env]['CLIENT_ID'],
+            resource_id=APP_REGISTRATION[env]['RESOURCE_ID'],
+            tenant_id=TENANT_ID,
+            interactive=interactive,
+            refresh_token=self.refresh_token
+        )
 
         if env == "localhost":
             self.base_url = f"http://localhost:8084/api/v1"
         else:
             self.base_url = f"https://main-sumo-{env}.radix.equinor.com/api/v1"
 
-    def _retrieve_token(self):
-        if self.user_provided_access_token:
-            self.logger.debug("User provided token exists, returning token")
-            return self.user_provided_access_token
-        else:
-            if self.auth.is_token_expired():
-                self.logger.debug("Token is expired, regenerating")
-                self.access_token = self.auth.get_token()
 
-        self.logger.debug("returning self.access_token from _retrieve_token")
-        return self.access_token
+    def __decode_token(self, token):
+        try:
+            payload = jwt.decode(token, options={"verify_signature": False})
+            return payload
+        except:
+            return None
+
+
+    def _retrieve_token(self):
+        if self.access_token:
+            if self.access_token_expires <= int(time.time()):
+                raise ValueError("Access_token has expired")
+            else:
+                return self.access_token
+
+        return self.auth.get_token()
+
 
     def _process_params(self, params_dict):
         prefixed_params = {}
@@ -173,9 +175,6 @@ class SumoClient:
         """
         Raise the proper authentication error according to the code received from sumo.
         """
-
-        self.logger.debug("code: %s", code)
-        self.logger.debug("message: %s", message)
 
         if 503 <= code <= 504 or code == 404 or code == 500:
             raise TransientError(code, message)
