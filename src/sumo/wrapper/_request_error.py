@@ -29,3 +29,15 @@ class PermanentError(RequestError):
 
     def __str__(self):
         return f'Fatal Request Error with status code {self.code} and text {self.message}.'
+
+def raise_request_error_exception(code, message):
+    """
+    Raise the proper authentication error according to the code received from sumo.
+    """
+
+    if 503 <= code <= 504 or code == 404 or code == 500:
+        raise TransientError(code, message)
+    elif 401 <= code <= 403:
+        raise AuthenticationError(code, message)
+    else:
+        raise PermanentError(code, message)

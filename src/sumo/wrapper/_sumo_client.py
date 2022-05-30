@@ -4,7 +4,8 @@ import time
 
 from .config import APP_REGISTRATION, TENANT_ID
 from ._new_auth import NewAuth
-from ._request_error import AuthenticationError, TransientError, PermanentError
+from ._request_error import raise_request_error_exception
+from ._blob_client import BlobClient
 
 class SumoClient:
     def __init__(
@@ -19,6 +20,7 @@ class SumoClient:
         self.access_token = None
         self.access_token_expires = None
         self.refresh_token = None
+        self._blob_client = BlobClient()
 
         if token:
             payload = self.__decode_token(token)
@@ -41,6 +43,11 @@ class SumoClient:
             self.base_url = f"http://localhost:8084/api/v1"
         else:
             self.base_url = f"https://main-sumo-{env}.radix.equinor.com/api/v1"
+
+
+    @property
+    def blob_client(self):
+        return self._blob_client
 
 
     def __decode_token(self, token):
@@ -85,7 +92,7 @@ class SumoClient:
         )
 
         if not response.ok:
-            self._raise_request_error_exception(
+            raise_request_error_exception(
                 response.status_code, response.text)
 
         if "/blob" in path:
@@ -116,10 +123,10 @@ class SumoClient:
                 headers=headers
             )
         except requests.exceptions.ProxyError as err:
-            self._raise_request_error_exception(503, err)
+            raise_request_error_exception(503, err)
 
         if not response.ok:
-            self._raise_request_error_exception(
+            raise_request_error_exception(
                 response.status_code, response.text)
 
         return response
@@ -147,10 +154,10 @@ class SumoClient:
                 headers=headers
             )
         except requests.exceptions.ProxyError as err:
-            self. _raise_request_error_exception(503, err)
+            raise_request_error_exception(503, err)
 
         if not response.ok:
-            self._raise_request_error_exception(
+            raise_request_error_exception(
                 response.status_code, response.text)
 
         return response
@@ -166,19 +173,7 @@ class SumoClient:
         response = requests.delete(f'{self.base_url}{path}', headers=headers)
 
         if not response.ok:
-            self._raise_request_error_exception(
+            raise_request_error_exception(
                 response.status_code, response.text)
 
         return response.json()
-
-    def _raise_request_error_exception(self, code, message):
-        """
-        Raise the proper authentication error according to the code received from sumo.
-        """
-
-        if 503 <= code <= 504 or code == 404 or code == 500:
-            raise TransientError(code, message)
-        elif 401 <= code <= 403:
-            raise AuthenticationError(code, message)
-        else:
-            raise PermanentError(code, message)
