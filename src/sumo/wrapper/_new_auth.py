@@ -76,6 +76,8 @@ class NewAuth:
                             "Failed to acquire token by device flow. Err: %s" % json.dumps(result, indent=4)
                         )
 
+        self.__save_cache() 
+        
         return result["access_token"]
 
 
