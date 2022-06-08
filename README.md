@@ -1,116 +1,36 @@
 # sumo-wrapper-python
+
 Python wrappers for Sumo APIs
 
-## Install: 
-    
+## Install:
+
     pip install git+ssh://git@github.com/equinor/sumo-wrapper-python.git@master
 
-For internal Equinor users, this package is available through the Komodo distribution.
+For internal Equinor users, this package is available through the Komodo
+distribution.
+
+> **:warning:** `CallSumoApi` is deprecated.
 
 # Table of contents
 
-- [CallSumoApi](#callsumoapi)
-    - [Initialization](#initialization)
-    - [Parameters](#parameters)
-  - [Examples](#examples)
-    - [search()](#search)
-    - [searchroot()](#searchroot)
 - [SumoClient](#SumoClient)
-    - [Initialization](#initialization)
-    - [Parameters](#parameters)
+  - [Initialization](#initialization)
+  - [Parameters](#parameters)
   - [Methods](#methods)
     - [get(path, **params)](#getpath-params)
     - [post(path, json, blob)](#postpath-json-blob)
     - [put(path, json, blob)](#putpath-json-blob)
     - [delete(path)](#deletepath)
-
-# CallSumoApi
-Predefined methods for various sumo operations. I.e uploading, searching for and deleting metadata and blobs.
-
-### Initialization
-```python
-from sumo.wrapper import CallSumoApi
-
-sumo = CallSumoApi()
-```
-
-### Parameters
-```python
-class CallSumoApi:
-    def __init__(
-        self,
-        env="dev",
-        resource_id=None,
-        client_id=None,
-        outside_token=False,
-        writeback=False,
-    ):
-```
-
-## Examples
-All `CallSumoApi` methods accept a `bearer` argument which lets the user use an existing access token instead of generating a new one.
-
-### search()
-Search all objects in sumo.
-
-#### Parameters
-```python
-def search(
-    self,
-    query,
-    select=None,
-    buckets=None,
-    search_from=0,
-    search_size="100",
-    search_after=None,
-    bearer=None,
-):
-```
-
-#### Usage
-```python
-# Find objects where class = surface
-search_results = sumo.search(query="class:surface", search_size="10")
-
-# Get child objects for a specific object
-parent_id = "1234"
-children = sumo.search(query=f"_sumo.parent_object:{parent_id}")
-
-# Get buckets for child object classes (i.e surface, table, polygon)
-# This will return a count for every class value
-buckets = sumo.search(
-    query=f"_sumo.parent_object:{parent_id}",
-    buckets=["class.keyword"]
-)
-```
-
-### searchroot()
-Search for parent objects (object without parent)
-
-#### Parameters
-```python
-def searchroot(
-    self,
-    query,
-    select=None,
-    buckets=None,
-    search_from=0,
-    search_size="100",
-    bearer=None,
-):
-```
-
-#### Usage
-```python
-# Get 3 top level objects for a specific user
-peesv_objects = sumo.searchroot(
-    query="fmu.case.user.id:peesv", 
-    search_size=3
-)
-```
+- [CallSumoApi (deprecated)](#callsumoapi)
+  - [Initialization](#initialization)
+  - [Parameters](#parameters)
+  - [Examples](#examples)
+    - [search()](#search)
+    - [searchroot()](#searchroot)
 
 # SumoClient
-An ultra thin wrapper class.
+
+A thin wrapper class for the Sumo API.
 
 ### Initialization
 
@@ -126,27 +46,37 @@ sumo = SumoClient(env="dev")
 class SumoClient:
     def __init__(
         self,
-        env,
-        access_token=None,
-        logging_level='INFO',
-        write_back=False
+        env:str,
+        token:str=None,
+        interactive:bool=False,
+        verbosity:str="CRITICAL"
     ):
 ```
-- `env*` (string) - sumo environment
 
-- `logging_level` (string) - logging level: "INFO", "DEBUG", "WARNING", "ERROR"
+- `env`: sumo environment
+- `token`: bearer token or refresh token
+- `interactive`: use interactive flow when authenticating
+- `verbosity`: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 
-- `access_token` (string) - bearer token for authentication
+###### `token` logic
 
-- `write_back` (boolean) - update token cache
+If an access token is provided in the `token` parameter, it will be used as long
+as it's valid. An error will be raised when it expires.
 
-If no `access_token` is provided, an authentication code flow is triggered to retrieve a token.
+If we are unable to decode the provided `token` as a JWT, we treat it as a
+refresh token and attempt to use it to retrieve an access token.
+
+If no `token` is provided, an authentication code flow/interactive flow is
+triggered to retrieve a token.
 
 ## Methods
-`SumoClient` has one method for each HTTP-method that is used in the sumo-core API. See examples of how to use these methods below.
 
+`SumoClient` has one method for each HTTP-method that is used in the sumo-core
+API. See examples of how to use these methods below.
 
-All methods accepts a path argument. Path parameters can be interpolated into the path string. Example:
+All methods accepts a path argument. Path parameters can be interpolated into
+the path string. Example:
+
 ```python
 object_id = "1234"
 
@@ -155,7 +85,9 @@ sumo.get(f"/objects('{object_id}')")
 ```
 
 ### get(path, **params)
-Performs a GET-request to sumo-core. Accepts query parameters as keyword arguments.
+
+Performs a GET-request to sumo-core. Accepts query parameters as keyword
+arguments.
 
 ```python
 # Retrieve userdata
@@ -174,9 +106,11 @@ object_id = "159405ba-0046-b321-55ce-542f383ba5c7"
 obj = sumo.get(f"/objects('{object_id}')")
 ```
 
-
 ### post(path, json, blob)
-Performs a POST-request to sumo-core. Accepts json and blob, but not both at the same time. 
+
+Performs a POST-request to sumo-core. Accepts json and blob, but not both at the
+same time.
+
 ```python
 # Upload new parent object
 parent_object = sumo.post("/objects", json=parent_meta_data)
@@ -188,7 +122,10 @@ child_object = sumo.post(f"/objects('{parent_id}')", json=child_meta_data)
 ```
 
 ### put(path, json, blob)
-Performs a PUT-request to sumo-core. Accepts json and blob, but not both at the same time.
+
+Performs a PUT-request to sumo-core. Accepts json and blob, but not both at the
+same time.
+
 ```python
 # Upload blob to child object
 child_id = child_object["_id"]
@@ -197,7 +134,9 @@ sumo.put(f"/objects('{child_id}')/blob", blob=blob)
 ```
 
 ### delete(path)
+
 Performs a DELETE-request to sumo-core.
+
 ```python
 # Delete blob
 sumo.delete(f"/objects('{child_id}')/blob")
@@ -207,4 +146,101 @@ sumo.delete(f"/objects('{child_id}')")
 
 # Delete parent object
 sumo.delete(f"/objects('{parent_id}')")
+```
+
+# CallSumoApi (deprecated)
+
+Predefined methods for various sumo operations. I.e uploading, searching for and
+deleting metadata and blobs.
+
+### Initialization
+
+```python
+from sumo.wrapper import CallSumoApi
+
+sumo = CallSumoApi()
+```
+
+### Parameters
+
+```python
+class CallSumoApi:
+    def __init__(
+        self,
+        env="dev",
+        resource_id=None,
+        client_id=None,
+        outside_token=False,
+        writeback=False,
+    ):
+```
+
+## Examples
+
+All `CallSumoApi` methods accept a `bearer` argument which lets the user use an
+existing access token instead of generating a new one.
+
+### search()
+
+Search all objects in sumo.
+
+#### Parameters
+
+```python
+def search(
+    self,
+    query,
+    select=None,
+    buckets=None,
+    search_from=0,
+    search_size="100",
+    search_after=None,
+    bearer=None,
+):
+```
+
+#### Usage
+
+```python
+# Find objects where class = surface
+search_results = sumo.search(query="class:surface", search_size="10")
+
+# Get child objects for a specific object
+parent_id = "1234"
+children = sumo.search(query=f"_sumo.parent_object:{parent_id}")
+
+# Get buckets for child object classes (i.e surface, table, polygon)
+# This will return a count for every class value
+buckets = sumo.search(
+    query=f"_sumo.parent_object:{parent_id}",
+    buckets=["class.keyword"]
+)
+```
+
+### searchroot()
+
+Search for parent objects (object without parent)
+
+#### Parameters
+
+```python
+def searchroot(
+    self,
+    query,
+    select=None,
+    buckets=None,
+    search_from=0,
+    search_size="100",
+    bearer=None,
+):
+```
+
+#### Usage
+
+```python
+# Get 3 top level objects for a specific user
+peesv_objects = sumo.searchroot(
+    query="fmu.case.user.id:peesv", 
+    search_size=3
+)
 ```

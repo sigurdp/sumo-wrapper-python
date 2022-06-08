@@ -3,19 +3,38 @@ import msal
 import os
 import sys
 import json
+import logging
 from .config import AUTHORITY_HOST_URI
 
 HOME_DIR = os.path.expanduser("~")
 
+logger = logging.getLogger("sumo.wrapper")
+
 class NewAuth:
+    """Sumo connection
+    
+    Establish a connection with a Sumo environment.
+
+    Attributes:
+        client_id: App registration id
+        resource_id: App registration resource id
+        tenant_id: AD tenant
+        interactive: Enable interactive authentication (in browser)
+        refresh_token: Use outside refresh token to acquire access token
+        verbosity: Logging level
+    """
+
     def __init__(
         self,
         client_id,
         resource_id,
         tenant_id,
         interactive=False,
-        refresh_token=None
+        refresh_token=None,
+        verbosity="CRITICAL"
     ):
+        logger.setLevel(verbosity)
+
         self.interactive = interactive
         self.scope = resource_id + "/.default"
         self.refresh_token = refresh_token
@@ -38,6 +57,18 @@ class NewAuth:
 
 
     def get_token(self):
+        """Gets a token.
+
+        Will first attempt to retrieve a token silently.
+        If a user provided refresh token exists, attempt to aquire token by refresh token.
+
+        If we are unable to retrieve a token silently and no refresh token has been provided by the caller, 
+        we either initiate a device flow or interactive flow based on the `interactive` attribute.
+
+        Returns:
+            A Json Web Token
+        """
+        
         accounts = self.msal.get_accounts()
         result = None
 
@@ -82,6 +113,12 @@ class NewAuth:
 
 
     def __load_cache(self):
+        """Load token cache from file.
+
+        Returns:
+            A msal friendly token cache object
+        """
+
         cache = msal.SerializableTokenCache()
 
         if os.path.isfile(self.token_path):
@@ -92,6 +129,8 @@ class NewAuth:
 
     
     def __save_cache(self):
+        """Write token cache to file."""
+        
         if self.cache.has_state_changed:
             old_mask = os.umask(0o077)
 
