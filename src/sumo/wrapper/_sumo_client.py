@@ -49,6 +49,9 @@ class SumoClient:
     def blob_client(self):
         return self._blob_client
 
+    def authenticate(self):
+        return self._retrieve_token()
+
 
     def __decode_token(self, token):
         try:

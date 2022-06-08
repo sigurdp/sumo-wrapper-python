@@ -3,7 +3,8 @@ import sys
 import logging
 
 from argparse import ArgumentParser
-from sumo.wrapper import CallSumoApi
+from sumo.wrapper import CallSumoApi, SumoClient
+
 
 logger = logging.getLogger("sumo.wrapper")
 logger.setLevel(level="CRITICAL")
@@ -11,19 +12,42 @@ logger.setLevel(level="CRITICAL")
 
 def get_parser() -> ArgumentParser:
     parser = ArgumentParser(description="Login to Sumo on azure")
+
     parser.add_argument(
+        "-e",
         "--env",
         dest="env",
         action="store",
         default="prod",
         help="Environment to log into",
     )
+
     parser.add_argument(
+        "-v",
         "--verbosity",
         dest="verbosity",
         default="CRITICAL",
         help="Set the verbosity level",
     )
+
+    parser.add_argument(
+        "-i",
+        "--interactive",
+        dest="interactive",
+        action="store_true",
+        default=False,
+        help="Login interactively",
+    )
+
+    parser.add_argument(
+        "-p",
+        "--print",
+        dest="print_token",
+        action="store_true",
+        default=False,
+        help="Print access token",
+    )
+
     return parser
 
 
@@ -35,7 +59,11 @@ def main():
 
     print("Login to Sumo environment: " + env)
 
-    CallSumoApi(env=env, writeback=True, verbosity=args.verbosity)
+    sumo = SumoClient(args.env, interactive=args.interactive)
+    token = sumo.authenticate()
+
+    if args.print_token:
+        print(f"TOKEN: {token}")
 
 
 if __name__ == "__main__":

@@ -8,3 +8,4 @@ build
 *.egg-info/
 *.log
 .cache/
+src/testing.py
