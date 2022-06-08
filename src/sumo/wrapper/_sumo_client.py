@@ -50,7 +50,7 @@ class SumoClient:
         return self._blob_client
 
     def authenticate(self):
-        self._retrieve_token()
+        return self._retrieve_token()
 
 
     def __decode_token(self, token):
