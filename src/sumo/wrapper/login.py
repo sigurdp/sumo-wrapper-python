@@ -31,6 +31,7 @@ def get_parser() -> ArgumentParser:
     parser.add_argument(
         "--interactive",
         dest="interactive",
+        action="store_true",
         default=False,
         help="Login interactively (True/False)",
     )
