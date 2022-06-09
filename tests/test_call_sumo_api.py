@@ -15,7 +15,7 @@ from sumo.wrapper import CallSumoApi
 
 class Connection:
     def __init__(self):
-        self.api = CallSumoApi(env="localhost")
+        self.api = CallSumoApi(env="dev")
 
 
 def _upload_parent_object(C, json):

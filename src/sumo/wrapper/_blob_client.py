@@ -2,8 +2,16 @@ import requests
 from ._request_error import raise_request_error_exception
 
 class BlobClient:
+    '''Upload blobs to blob store using pre-authorized URLs'''
 
-    def upload_blob(self, blob, url):
+    def upload_blob(self, blob:bytes, url:str):
+        '''Upload a blob.
+
+        Parameters:
+            blob: byte string to upload
+            url: pre-authorized URL to blob store
+        '''
+        
         headers = {
             "Content-Type": "application/octet-stream",
             "Content-Length": str(len(blob)),
