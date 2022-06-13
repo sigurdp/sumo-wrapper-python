@@ -58,10 +58,13 @@ class NewAuth:
         """Gets a token.
 
         Will first attempt to retrieve a token silently.
-        If a user provided refresh token exists, attempt to aquire token by refresh token.
+        If a user provided refresh token exists,
+        attempt to aquire token by refresh token.
 
-        If we are unable to retrieve a token silently and no refresh token has been provided by the caller,
-        we either initiate a device flow or interactive flow based on the `interactive` attribute.
+        If we are unable to retrieve a token silently and
+        no refresh token has been provided by the caller,
+        we either initiate a device flow or interactive flow
+        based on the `interactive` attribute.
 
         Returns:
             A Json Web Token

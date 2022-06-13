@@ -26,7 +26,8 @@ class SumoClient:
         Args:
             env: Sumo environment
             token: Access token or refresh token.
-            interactive: Enable interactive authentication (in browser). If not enabled, code grant flow will be used.
+            interactive: Enable interactive authentication (in browser).
+                If not enabled, code grant flow will be used.
             verbosity: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         """
 
@@ -50,7 +51,7 @@ class SumoClient:
                 self.access_token_expires = payload["exp"]
             else:
                 logger.debug(
-                    "Unable to decode token as JWT, treating it as a refresh token"
+                    "Unable to decode token as JWT, " "treating it as a refresh token"
                 )
                 self.refresh_token = token
 
@@ -64,7 +65,7 @@ class SumoClient:
         )
 
         if env == "localhost":
-            self.base_url = f"http://localhost:8084/api/v1"
+            self.base_url = "http://localhost:8084/api/v1"
         else:
             self.base_url = f"https://main-sumo-{env}.radix.equinor.com/api/v1"
 
@@ -100,7 +101,7 @@ class SumoClient:
         try:
             payload = jwt.decode(token, options={"verify_signature": False})
             return payload
-        except:
+        except jwt.InvalidTokenError:
             return None
 
     def _retrieve_token(self) -> str:
@@ -111,7 +112,7 @@ class SumoClient:
         """
 
         if self.access_token:
-            logger.debug("User provided access_token exists, checking expire time")
+            logger.debug("User provided access_token exists, " "checking expire time")
             if self.access_token_expires <= int(time.time()):
                 raise ValueError("Access_token has expired")
             else:
@@ -122,7 +123,7 @@ class SumoClient:
         return self.auth.get_token()
 
     def _process_params(self, params_dict: dict) -> dict:
-        """Convert a dictionary of query parameters to Sumo friendly format. Prefix keys with $.
+        """Convert a dictionary of query parameters to Sumo friendly format.
 
         Args:
             params_dict: Dictionary of query parameters
@@ -192,7 +193,8 @@ class SumoClient:
     ) -> requests.Response:
         """Performs a POST-request to the Sumo API.
 
-        Takes either blob or json as a payload, but will raise an error if both are provided.
+        Takes either blob or json as a payload,
+        will raise an error if both are provided.
 
         Args:
             path: Path to a Sumo endpoint
@@ -232,9 +234,7 @@ class SumoClient:
         token = self._retrieve_token()
 
         if blob and json:
-            raise ValueError(
-                "Both blob and json given to post - can only have one at the time."
-            )
+            raise ValueError("Both blob and json given to post.")
 
         content_type = (
             "application/json" if json is not None else "application/octet-stream"
@@ -263,7 +263,8 @@ class SumoClient:
     ) -> requests.Response:
         """Performs a PUT-request to the Sumo API.
 
-        Takes either blob or json as a payload, will raise an error if both are provided.
+        Takes either blob or json as a payload,
+        will raise an error if both are provided.
 
         Args:
             path: Path to a Sumo endpoint
@@ -277,9 +278,7 @@ class SumoClient:
         token = self._retrieve_token()
 
         if blob and json:
-            raise ValueError(
-                "Both blob and json given to post - can only have one at the time."
-            )
+            raise ValueError("Both blob and json given to post")
 
         content_type = (
             "application/json" if json is not None else "application/octet-stream"

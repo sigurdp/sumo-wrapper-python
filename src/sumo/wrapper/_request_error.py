@@ -35,7 +35,8 @@ class PermanentError(RequestError):
 
 def raise_request_error_exception(code, message):
     """
-    Raise the proper authentication error according to the code received from sumo.
+    Raise the proper authentication error
+    according to the code received from sumo.
     """
 
     if 503 <= code <= 504 or code == 404 or code == 500:

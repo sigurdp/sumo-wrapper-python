@@ -1,9 +1,7 @@
-import os
-import sys
 import logging
 
 from argparse import ArgumentParser
-from sumo.wrapper import CallSumoApi, SumoClient
+from sumo.wrapper import SumoClient
 
 
 logger = logging.getLogger("sumo.wrapper")
