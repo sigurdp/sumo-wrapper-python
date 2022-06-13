@@ -18,7 +18,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
         with:
-          options: "--verbose --line-length 80"
+          options: "--check --verbose --line-length 80"
           src: "./src/sumo/wrapper"
   flake8:
     runs-on: ubuntu-latest
