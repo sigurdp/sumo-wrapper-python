@@ -1,10 +1,25 @@
-name: flake8
+name: linting
 
 on:
   pull_request:
   push: { branches: [master] }
 
 jobs:
+  black:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: psf/black@stable
+        with:
+          options: "--verbose --line-length 80"
+          src: "./src/sumo/wrapper"
   flake8:
     runs-on: ubuntu-latest
     strategy:
