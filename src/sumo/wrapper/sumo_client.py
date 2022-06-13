@@ -51,7 +51,8 @@ class SumoClient:
                 self.access_token_expires = payload["exp"]
             else:
                 logger.debug(
-                    "Unable to decode token as JWT, " "treating it as a refresh token"
+                    "Unable to decode token as JWT, "
+                    "treating it as a refresh token"
                 )
                 self.refresh_token = token
 
@@ -112,7 +113,9 @@ class SumoClient:
         """
 
         if self.access_token:
-            logger.debug("User provided access_token exists, " "checking expire time")
+            logger.debug(
+                "User provided access_token exists, " "checking expire time"
+            )
             if self.access_token_expires <= int(time.time()):
                 raise ValueError("Access_token has expired")
             else:
@@ -237,7 +240,9 @@ class SumoClient:
             raise ValueError("Both blob and json given to post.")
 
         content_type = (
-            "application/json" if json is not None else "application/octet-stream"
+            "application/json"
+            if json is not None
+            else "application/octet-stream"
         )
 
         headers = {
@@ -281,7 +286,9 @@ class SumoClient:
             raise ValueError("Both blob and json given to post")
 
         content_type = (
-            "application/json" if json is not None else "application/octet-stream"
+            "application/json"
+            if json is not None
+            else "application/octet-stream"
         )
 
         headers = {

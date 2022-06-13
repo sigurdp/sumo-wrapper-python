@@ -64,7 +64,8 @@ class CallAzureApi:
 
     def __str__(self):
         str_repr = [
-            "{key}='{value}'".format(key=k, value=v) for k, v in self.__dict__.items()
+            "{key}='{value}'".format(key=k, value=v)
+            for k, v in self.__dict__.items()
         ]
         return ", ".join(str_repr)
 
@@ -100,7 +101,8 @@ class CallAzureApi:
         self.bearer = "Bearer " + self.auth.get_token()
 
         logger.debug(
-            "Setting self.bearer. Length of self.bearer is %s", str(len(self.bearer))
+            "Setting self.bearer. Length of self.bearer is %s",
+            str(len(self.bearer)),
         )
         logger.debug("_generate_bearer_token is finished.")
 
@@ -112,7 +114,9 @@ class CallAzureApi:
 
         is_expired = self.auth.is_token_expired()
 
-        logger.debug("Answer from self.auth.is_token_expired() was %s", str(is_expired))
+        logger.debug(
+            "Answer from self.auth.is_token_expired() was %s", str(is_expired)
+        )
 
         return is_expired
 

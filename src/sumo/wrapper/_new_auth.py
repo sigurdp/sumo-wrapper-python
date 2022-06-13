@@ -40,7 +40,9 @@ class NewAuth:
         self.scope = resource_id + "/.default"
         self.refresh_token = refresh_token
 
-        self.token_path = os.path.join(HOME_DIR, ".sumo", str(resource_id) + ".token")
+        self.token_path = os.path.join(
+            HOME_DIR, ".sumo", str(resource_id) + ".token"
+        )
 
         self.cache = None
 
@@ -74,7 +76,9 @@ class NewAuth:
         result = None
 
         if accounts:
-            result = self.msal.acquire_token_silent([self.scope], account=accounts[0])
+            result = self.msal.acquire_token_silent(
+                [self.scope], account=accounts[0]
+            )
 
         if not result:
             if self.refresh_token:

@@ -25,9 +25,7 @@ class CallSumoApi:
         logger.setLevel(level=verbosity)
 
         if env == "exp":
-            self.base_url = (
-                "https://main-sumo-experiment-dev.playground.radix.equinor.com/api/v1"
-            )
+            self.base_url = "https://main-sumo-experiment-dev.playground.radix.equinor.com/api/v1"
         elif env == "localhost":
             self.base_url = f"http://localhost:8084/api/v1"
         else:
@@ -36,7 +34,9 @@ class CallSumoApi:
         resource_id = (
             resource_id if resource_id else APP_REGISTRATION[env]["RESOURCE_ID"]
         )
-        client_id = client_id if client_id else APP_REGISTRATION[env]["CLIENT_ID"]
+        client_id = (
+            client_id if client_id else APP_REGISTRATION[env]["CLIENT_ID"]
+        )
 
         self.callAzureApi = CallAzureApi(
             resource_id, client_id, outside_token, writeback=writeback
@@ -44,7 +44,8 @@ class CallSumoApi:
 
     def __str__(self):
         str_repr = [
-            "{key}='{value}'".format(key=k, value=v) for k, v in self.__dict__.items()
+            "{key}='{value}'".format(key=k, value=v)
+            for k, v in self.__dict__.items()
         ]
         return ", ".join(str_repr)
 
@@ -192,7 +193,9 @@ class CallSumoApi:
         """
         return self._post_objects(json=json, bearer=bearer)
 
-    def update_top_level_json(self, json, object_id=None, url=None, bearer=None):
+    def update_top_level_json(
+        self, json, object_id=None, url=None, bearer=None
+    ):
         """
         Updates a top-level json object in SUMO.
 
@@ -205,7 +208,9 @@ class CallSumoApi:
         if not object_id and not url:
             raise ValueError("Error: object ID and url cannot be both null.")
 
-        return self._put_objects(json=json, object_id=object_id, url=url, bearer=bearer)
+        return self._put_objects(
+            json=json, object_id=object_id, url=url, bearer=bearer
+        )
 
     def save_child_level_json(self, parent_id, json, bearer=None):
         """
@@ -223,7 +228,9 @@ class CallSumoApi:
         """
         return self._post_objects(object_id=parent_id, json=json, bearer=bearer)
 
-    def update_child_level_json(self, json, object_id=None, url=None, bearer=None):
+    def update_child_level_json(
+        self, json, object_id=None, url=None, bearer=None
+    ):
         """
         Updates a child-level json object in SUMO.
 
@@ -236,7 +243,9 @@ class CallSumoApi:
         if not object_id and not url:
             raise ValueError("Error: object ID and url cannot be both null.")
 
-        return self._put_objects(json=json, object_id=object_id, url=url, bearer=bearer)
+        return self._put_objects(
+            json=json, object_id=object_id, url=url, bearer=bearer
+        )
 
     def delete_object(self, object_id, bearer=None):
         """
@@ -322,7 +331,9 @@ class CallSumoApi:
         Return
             response object from metadata upload.
         """
-        response_json = self.save_child_level_json(parent_id, metadata_json, bearer)
+        response_json = self.save_child_level_json(
+            parent_id, metadata_json, bearer
+        )
         blob_url = response_json.json().get("blob_url")
         _ = self.save_blob(blob, url=blob_url, bearer=bearer)
         return response_json
@@ -352,7 +363,9 @@ class CallSumoApi:
         url = f"{self.base_url}/aggregate"
         return self._post_objects(url=url, json=json, bearer=bearer)
 
-    def _post_objects(self, json, blob=None, object_id=None, bearer=None, url=None):
+    def _post_objects(
+        self, json, blob=None, object_id=None, bearer=None, url=None
+    ):
         """
         Post a new object into sumo.
 
@@ -376,9 +389,13 @@ class CallSumoApi:
             if blob:
                 url = f"{url}/blob"
 
-        return self.callAzureApi.post(url=url, blob=blob, json=json, bearer=bearer)
+        return self.callAzureApi.post(
+            url=url, blob=blob, json=json, bearer=bearer
+        )
 
-    def _put_objects(self, object_id=None, blob=None, json=None, bearer=None, url=None):
+    def _put_objects(
+        self, object_id=None, blob=None, json=None, bearer=None, url=None
+    ):
         """
         Post a new object into sumo.
         Parameters
@@ -399,4 +416,6 @@ class CallSumoApi:
             if blob:
                 url = f"{url}/blob"
 
-        return self.callAzureApi.put(url=url, blob=blob, json=json, bearer=bearer)
+        return self.callAzureApi.put(
+            url=url, blob=blob, json=json, bearer=bearer
+        )
