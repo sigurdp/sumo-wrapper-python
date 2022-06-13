@@ -4,7 +4,7 @@ class RequestError(Exception):
         self.message = message
 
     def __str__(self):
-        return f'Request Error with status code {self.code} and text {self.message}'
+        return f"Request Error with status code {self.code} and text {self.message}"
 
 
 class AuthenticationError(RequestError):
@@ -12,7 +12,7 @@ class AuthenticationError(RequestError):
         super().__init__(code, message)
 
     def __str__(self):
-        return f'Authentication failed with status code {self.code} and text {self.message}.'
+        return f"Authentication failed with status code {self.code} and text {self.message}."
 
 
 class TransientError(RequestError):
@@ -20,7 +20,7 @@ class TransientError(RequestError):
         super().__init__(code, message)
 
     def __str__(self):
-        return f'Transient Error with status code {self.code} and text {self.message}.'
+        return f"Transient Error with status code {self.code} and text {self.message}."
 
 
 class PermanentError(RequestError):
@@ -28,7 +28,10 @@ class PermanentError(RequestError):
         super().__init__(code, message)
 
     def __str__(self):
-        return f'Fatal Request Error with status code {self.code} and text {self.message}.'
+        return (
+            f"Fatal Request Error with status code {self.code} and text {self.message}."
+        )
+
 
 def raise_request_error_exception(code, message):
     """
