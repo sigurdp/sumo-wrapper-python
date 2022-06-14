@@ -1,0 +1,5 @@
+[flake8]
+exclude = 
+    _call_azure_api.py
+    _call_sumo_api.py
+    _auth.py
