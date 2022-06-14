@@ -13,9 +13,7 @@
 import os
 import sys
 
-cwd = os.getcwd()
-project_root = os.path.dirname(cwd) + "/src/sumo/wrapper"
-sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
