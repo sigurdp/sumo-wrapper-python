@@ -74,12 +74,12 @@ class SumoClient:
     def authenticate(self) -> str:
         """Authenticate to Sumo.
 
-        If no access token/refresh token has been provided, this will result authentication prompt.
+        If no access token/refresh token has been provided, this will result in an authentication prompt.
         
         Returns:
             An access token
         """
-        
+
         return self._retrieve_token()
 
     @property
