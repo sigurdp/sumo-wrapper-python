@@ -70,6 +70,18 @@ class SumoClient:
         else:
             self.base_url = f"https://main-sumo-{env}.radix.equinor.com/api/v1"
 
+    def authenticate(self) -> str:
+        """Authenticate to Sumo.
+
+        If no access token/refresh token has been provided,
+        this will result in an authentication prompt.
+
+        Returns:
+            An access token
+        """
+
+        return self._retrieve_token()
+
     @property
     def blob_client(self) -> BlobClient:
         """Get blob_client
