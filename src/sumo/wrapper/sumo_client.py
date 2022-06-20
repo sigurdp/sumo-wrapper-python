@@ -70,12 +70,12 @@ class SumoClient:
         else:
             self.base_url = f"https://main-sumo-{env}.radix.equinor.com/api/v1"
 
-
     def authenticate(self) -> str:
         """Authenticate to Sumo.
 
-        If no access token/refresh token has been provided, this will result in an authentication prompt.
-        
+        If no access token/refresh token has been provided,
+        this will result in an authentication prompt.
+
         Returns:
             An access token
         """
