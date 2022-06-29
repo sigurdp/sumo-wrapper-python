@@ -13,7 +13,7 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python :: 3.7" "Programming Language :: Python :: 3.8",
     ],
-    version="0.1.7",
+    use_scm_version={"write_to": "src/sumo/wrapper/version.py"},
     author="Equinor ASA",
     install_requires=["requests", "msal", "PyYAML", "setuptools"],
     python_requires=">=3.4",
