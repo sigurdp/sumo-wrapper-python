@@ -25,7 +25,8 @@ def _upload_parent_object(C, json):
 
 
 def _upload_blob(C, blob, url=None, object_id=None):
-    response = C.api.put(f"/objects('{object_id}')/blob", blob=blob)
+    #response = C.api.put(f"/objects('{object_id}')/blob", blob=blob)
+    response = C.api.blob_client.upload_blob(blob=blob, url=url)
 
     print("Blob save " + str(response.status_code), flush=True)
     if not 200 <= response.status_code < 202:
@@ -76,7 +77,7 @@ class ValueKeeper:
 """ TESTS """
 
 
-def test_upload_search_delete_ensemble_child(token):
+def test_upload_search_delete_ensemble_child(token=None):
     """
     Testing the wrapper functionalities.
 
@@ -113,9 +114,10 @@ def test_upload_search_delete_ensemble_child(token):
     assert isinstance(response_surface.json(), dict)
 
     surface_id = response_surface.json().get("objectid")
+    blob_url = response_surface.json().get("blob_url")
 
     # Upload BLOB
-    response_blob = _upload_blob(C=C, blob=B, object_id=surface_id)
+    response_blob = _upload_blob(C=C, blob=B, url=blob_url, object_id=surface_id)
     assert 200 <= response_blob.status_code <= 202
 
     sleep(4)
@@ -161,7 +163,7 @@ def test_upload_search_delete_ensemble_child(token):
     assert total == 0
 
 
-def test_fail_on_wrong_metadata(token):
+def test_fail_on_wrong_metadata(token=None):
     """
     Upload a parent object with erroneous metadata, confirm failure
     """
@@ -170,7 +172,7 @@ def test_fail_on_wrong_metadata(token):
         assert _upload_parent_object(C=C, json={"some field": "some value"})
 
 
-def test_upload_duplicate_ensemble(token):
+def test_upload_duplicate_ensemble(token=None):
     """
     Adding a duplicate ensemble, both tries must return same id.
     """
