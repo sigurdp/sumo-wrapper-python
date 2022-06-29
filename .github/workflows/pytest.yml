@@ -1,0 +1,25 @@
+name: pytest
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          client-id: 123
+          tenant-id: 123
+          subscription-id: 123
+        
+      - name: Run pytest
+        run: |
+          access_token=$(az account get-access-token --query "accessToken")
+          pytest tests/test_sumo_thin_client.pytoken 1
