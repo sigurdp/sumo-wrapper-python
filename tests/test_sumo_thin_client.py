@@ -12,8 +12,8 @@ from sumo.wrapper import SumoClient
 
 
 class Connection:
-    def __init__(self):
-        self.api = SumoClient(env="dev")
+    def __init__(self, token):
+        self.api = SumoClient(env="dev", token=token)
 
 
 def _upload_parent_object(C, json):
@@ -76,7 +76,7 @@ class ValueKeeper:
 """ TESTS """
 
 
-def test_upload_search_delete_ensemble_child():
+def test_upload_search_delete_ensemble_child(token):
     """
     Testing the wrapper functionalities.
 
@@ -84,7 +84,7 @@ def test_upload_search_delete_ensemble_child():
     those objects to make sure they are available to the user. We then delete
     them and repeat the search to check if they were properly removed from sumo.
     """
-    C = Connection()
+    C = Connection(token)
     B = b"123456789"
 
     # Upload Ensemble
@@ -161,20 +161,20 @@ def test_upload_search_delete_ensemble_child():
     assert total == 0
 
 
-def test_fail_on_wrong_metadata():
+def test_fail_on_wrong_metadata(token):
     """
     Upload a parent object with erroneous metadata, confirm failure
     """
-    C = Connection()
+    C = Connection(token)
     with pytest.raises(Exception):
         assert _upload_parent_object(C=C, json={"some field": "some value"})
 
 
-def test_upload_duplicate_ensemble():
+def test_upload_duplicate_ensemble(token):
     """
     Adding a duplicate ensemble, both tries must return same id.
     """
-    C = Connection()
+    C = Connection(token)
 
     with open("tests/testdata/case.yml", "r") as stream:
         fmu_metadata1 = yaml.safe_load(stream)
