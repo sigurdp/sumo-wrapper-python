@@ -88,7 +88,6 @@ def test_upload_search_delete_ensemble_child(token):
     B = b"123456789"
 
     print(len(token))
-    print(token)
 
     # Upload Ensemble
     with open("tests/testdata/case.yml", "r") as stream:
