@@ -27,10 +27,13 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-        
-      - name: Run pytest
+          
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pytest
+        
+      - name: Run pytest
+        run: |
           access_token=$(az account get-access-token --query "accessToken")
           pytest -q -s --token $access_token tests/test_sumo_thin_client.py
