@@ -30,6 +30,7 @@ jobs:
         
       - name: Run pytest
         run: |
-          python -m pip install pytest
+          python -m pip install --upgrade pip
+          pip install pytest
           access_token=$(az account get-access-token --query "accessToken")
           pytest -q -s --token $access_token tests/test_sumo_thin_client.py
