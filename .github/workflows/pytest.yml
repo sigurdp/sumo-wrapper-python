@@ -40,8 +40,7 @@ jobs:
           
           echo '#!/bin/sh' >> run_pytest.sh
           echo 'access_token=$(az account get-access-token --query "accessToken")' >> run_pytest.sh
+          echo 'echo $access_token' >> run_pytest.sh
           echo 'pytest -q -s --token $access_token tests/test_sumo_thin_client.py' >> run_pytest.sh
           
           cat run_pytest.sh
-          
-          ./run_pytest.sh
