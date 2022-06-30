@@ -25,7 +25,6 @@ def _upload_parent_object(C, json):
 
 
 def _upload_blob(C, blob, url=None, object_id=None):
-    #response = C.api.put(f"/objects('{object_id}')/blob", blob=blob)
     response = C.api.blob_client.upload_blob(blob=blob, url=url)
 
     print("Blob save " + str(response.status_code), flush=True)
@@ -77,7 +76,7 @@ class ValueKeeper:
 """ TESTS """
 
 
-def test_upload_search_delete_ensemble_child(token=None):
+def test_upload_search_delete_ensemble_child(token):
     """
     Testing the wrapper functionalities.
 
@@ -163,7 +162,7 @@ def test_upload_search_delete_ensemble_child(token=None):
     assert total == 0
 
 
-def test_fail_on_wrong_metadata(token=None):
+def test_fail_on_wrong_metadata(token):
     """
     Upload a parent object with erroneous metadata, confirm failure
     """
@@ -172,7 +171,7 @@ def test_fail_on_wrong_metadata(token=None):
         assert _upload_parent_object(C=C, json={"some field": "some value"})
 
 
-def test_upload_duplicate_ensemble(token=None):
+def test_upload_duplicate_ensemble(token):
     """
     Adding a duplicate ensemble, both tries must return same id.
     """
