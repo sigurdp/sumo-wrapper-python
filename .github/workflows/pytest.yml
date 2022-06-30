@@ -44,3 +44,5 @@ jobs:
           echo 'pytest -q -s --token $access_token tests/test_sumo_thin_client.py' >> run_pytest.sh
           
           cat run_pytest.sh
+          
+          ./run_pytest.sh
