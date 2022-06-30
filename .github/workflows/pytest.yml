@@ -36,4 +36,4 @@ jobs:
       - name: Run pytest
         run: |
           access_token=$(az account get-access-token --query "accessToken")
-          pytest -q -s --token $access_token tests/test_sumo_thin_client.py
+          pytest -q -s --token 123 tests/test_sumo_thin_client.py
