@@ -39,7 +39,7 @@ class PermanentError(RequestError):
     def __str__(self):
         return (
             f"Fatal Request Error with status code {self.code} "
-            "and text {self.message}."
+            f"and text {self.message}."
         )
 
 
