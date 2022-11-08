@@ -75,6 +75,7 @@ class ValueKeeper:
 
 """ TESTS """
 
+import uuid
 
 def test_upload_search_delete_ensemble_child(token):
     """
@@ -91,17 +92,24 @@ def test_upload_search_delete_ensemble_child(token):
     with open("tests/testdata/case.yml", "r") as stream:
         fmu_case_metadata = yaml.safe_load(stream)
 
+    case_uuid = str(uuid.uuid4())
+    fmu_case_metadata["fmu"]["case"]["uuid"] = case_uuid
+
     response_case = _upload_parent_object(C=C, json=fmu_case_metadata)
 
     assert 200 <= response_case.status_code <= 202
     assert isinstance(response_case.json(), dict)
 
     case_id = response_case.json().get("objectid")
-    fmu_case_id = fmu_case_metadata.get("fmu").get("case").get("uuid")
+    assert(case_id == case_uuid)
+
+    sleep(5)
 
     # Upload Regular Surface
     with open("tests/testdata/surface.yml", "r") as stream:
         fmu_surface_metadata = yaml.safe_load(stream)
+
+    fmu_surface_metadata["fmu"]["case"]["uuid"] = case_uuid
 
     fmu_surface_id = fmu_surface_metadata.get(
         "fmu").get("realization").get("id")
@@ -122,7 +130,7 @@ def test_upload_search_delete_ensemble_child(token):
     sleep(4)
 
     # Search for ensemble
-    query = f"{fmu_case_id}"
+    query = f"fmu.case.uuid:{case_uuid}"
 
     search_results = C.api.get("/searchroot", query=query, select=["_source"])
 
@@ -201,6 +209,8 @@ def test_upload_duplicate_ensemble(token):
     # Delete Ensemble
     result = _delete_object(C=C, object_id=case_id1)
     assert result == "Accepted"
+
+    sleep(5)
 
     # Search for ensemble
     with pytest.raises(Exception):

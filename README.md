@@ -17,7 +17,7 @@ distribution.
   - [Initialization](#initialization)
   - [Parameters](#parameters)
   - [Methods](#methods)
-    - [get(path, **params)](#getpath-params)
+    - [get(path, \*\*params)](#getpath-params)
     - [post(path, json, blob)](#postpath-json-blob)
     - [put(path, json, blob)](#putpath-json-blob)
     - [delete(path)](#deletepath)
@@ -84,7 +84,7 @@ object_id = "1234"
 sumo.get(f"/objects('{object_id}')")
 ```
 
-### get(path, **params)
+### get(path, \*\*params)
 
 Performs a GET-request to sumo-core. Accepts query parameters as keyword
 arguments.
@@ -94,9 +94,9 @@ arguments.
 user_data = sumo.get("/userdata")
 
 # Search for objects
-results = sumo.get("/search", 
-    query="class:surface", 
-    size:3, 
+results = sumo.get("/search",
+    query="class:surface",
+    size:3,
     select=["_id"]
 )
 
@@ -240,7 +240,7 @@ def searchroot(
 ```python
 # Get 3 top level objects for a specific user
 peesv_objects = sumo.searchroot(
-    query="fmu.case.user.id:peesv", 
+    query="fmu.case.user.id:peesv",
     search_size=3
 )
 ```
