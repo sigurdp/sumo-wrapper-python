@@ -67,6 +67,10 @@ class SumoClient:
 
         if env == "localhost":
             self.base_url = "http://localhost:8084/api/v1"
+        elif env == "dev":
+            self.base_url = (
+                "https://main-sumo-core-nodejs-dev.radix.equinor.com/api/v1"
+            )
         else:
             self.base_url = f"https://main-sumo-{env}.radix.equinor.com/api/v1"
 
