@@ -55,15 +55,15 @@ class SumoClient:
                     "treating it as a refresh token"
                 )
                 self.refresh_token = token
-
-        self.auth = NewAuth(
-            client_id=APP_REGISTRATION[env]["CLIENT_ID"],
-            resource_id=APP_REGISTRATION[env]["RESOURCE_ID"],
-            tenant_id=TENANT_ID,
-            interactive=interactive,
-            refresh_token=self.refresh_token,
-            verbosity=verbosity,
-        )
+        else:
+            self.auth = NewAuth(
+                client_id=APP_REGISTRATION[env]["CLIENT_ID"],
+                resource_id=APP_REGISTRATION[env]["RESOURCE_ID"],
+                tenant_id=TENANT_ID,
+                interactive=interactive,
+                refresh_token=self.refresh_token,
+                verbosity=verbosity,
+            )
 
         if env == "localhost":
             self.base_url = "http://localhost:8084/api/v1"
