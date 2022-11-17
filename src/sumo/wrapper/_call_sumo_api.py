@@ -26,9 +26,9 @@ class CallSumoApi:
 
         if env == "exp":
             self.base_url = "https://main-sumo-experiment-dev.playground.radix.equinor.com/api/v1"
-        elif env == "dev":
+        elif env == "dev" or env == "preview":
             self.base_url = (
-                f"https://main-sumo-core-nodejs-dev.radix.equinor.com/api/v1"
+                f"https://main-sumo-core-nodejs-{env}.radix.equinor.com/api/v1"
             )
         elif env == "localhost":
             self.base_url = f"http://localhost:8084/api/v1"
