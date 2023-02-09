@@ -6,11 +6,6 @@ import sys
 import os
 import logging
 
-logging.basicConfig(
-    format="%(asctime)s %(levelname)-8s %(message)s",
-    level=logging.INFO,
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
 
 logger = logging.getLogger("sumo.wrapper")
 
@@ -31,7 +26,7 @@ class Auth:
         writeback=False,
         verbosity="CRITICAL",
     ):
-
+        logger.setLevel(verbosity)
         logger.debug("Initialize Auth")
         self.client_id = client_id
         logger.debug("client_id is %s", self.client_id)
@@ -213,7 +208,6 @@ class Auth:
             self.cache.deserialize(file.read())
 
     def _get_cache(self):
-
         logger.debug("_get_cache")
         self.cache = msal.SerializableTokenCache()
 
