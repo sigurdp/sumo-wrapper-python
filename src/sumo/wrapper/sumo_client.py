@@ -204,7 +204,11 @@ class SumoClient:
         return response.json()
 
     def post(
-        self, path: str, blob: bytes = None, json: dict = None
+        self,
+        path: str,
+        blob: bytes = None,
+        json: dict = None,
+        params: dict = None,
     ) -> requests.Response:
         """Performs a POST-request to the Sumo API.
 
@@ -252,20 +256,26 @@ class SumoClient:
             raise ValueError("Both blob and json given to post.")
 
         content_type = (
-            "application/json"
-            if json is not None
-            else "application/octet-stream"
+            "application/octet-stream" if blob else "application/json"
         )
+        content_length = 0
+
+        if blob or json:
+            content_length = len(json) if json else len(blob)
 
         headers = {
             "Content-Type": content_type,
             "authorization": f"Bearer {token}",
-            "Content-Length": str(len(json) if json else len(blob)),
+            "Content-Length": str(content_length),
         }
 
         try:
             response = requests.post(
-                f"{self.base_url}{path}", data=blob, json=json, headers=headers
+                f"{self.base_url}{path}",
+                data=blob,
+                json=json,
+                headers=headers,
+                params=params,
             )
         except requests.exceptions.ProxyError as err:
             raise_request_error_exception(503, err)

@@ -5,3 +5,6 @@ requires = [
   "setuptools_scm>=3.2.0",
   "wheel"
 ]
+
+[tool.black]
+line-length = 80
