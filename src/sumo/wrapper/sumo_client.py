@@ -7,6 +7,7 @@ from .config import APP_REGISTRATION, TENANT_ID
 from ._new_auth import NewAuth
 from ._request_error import raise_request_error_exception
 from ._blob_client import BlobClient
+from ._sumo_aggregation_client import SumoAggregationClient
 
 logger = logging.getLogger("sumo.wrapper")
 
@@ -69,6 +70,10 @@ class SumoClient:
             self.base_url = "http://localhost:8084/api/v1"
         else:
             self.base_url = f"https://main-sumo-{env}.radix.equinor.com/api/v1"
+
+        self.agg_client = SumoAggregationClient(
+            env=env, interactive=interactive, verbosity=verbosity
+        )
 
     def authenticate(self) -> str:
         """Authenticate to Sumo.
@@ -362,3 +367,6 @@ class SumoClient:
             raise_request_error_exception(response.status_code, response.text)
 
         return response.json()
+
+    def get_aggregate(self, json: dict):
+        return self.agg_client.get_aggregate(json)
