@@ -39,12 +39,20 @@ class SumoAggregationClient:
         )
 
         if env == "localhost":
-            self.base_url = f"https://main-sumo-surface-aggregation-service-preview.radix.equinor.com"
+            self.base_url = (
+                "https://main-sumo-surface-aggregation-service-preview"
+                + ".radix.equinor.com"
+            )
         else:
-            self.base_url = f"https://main-sumo-surface-aggregation-service-{env}.radix.equinor.com"
+            self.base_url = (
+                f"https://main-sumo-surface-aggregation-service-{env}"
+                + ".radix.equinor.com"
+            )
 
     def get_aggregate(self, json: dict):
-        """Performs a POST-request to the Sumo Aggregation API /fastaggregation endpoint.
+        """
+        Performs a POST-request to Sumo Aggregation API /fastaggregation.
+
         Takes json as a payload
         Args:
             json: Json payload
