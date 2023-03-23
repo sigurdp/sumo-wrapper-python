@@ -53,7 +53,8 @@ class SumoAggregationClient:
         """
         Performs a POST-request to Sumo Aggregation API /fastaggregation.
 
-        Takes json as a payload
+        Takes json with objects to aggregate and aggregation operation
+            as payload
         Args:
             json: Json payload
         Returns:

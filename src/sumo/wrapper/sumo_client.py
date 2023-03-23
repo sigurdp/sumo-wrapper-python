@@ -369,4 +369,12 @@ class SumoClient:
         return response.json()
 
     def get_aggregate(self, json: dict):
+        """Gets a surface aggregation using SumoAggregationClient:get_aggregate
+
+        Args:
+            json: Json payload
+
+        Returns:
+            Sumo aggregate response object
+        """
         return self.agg_client.get_aggregate(json)
