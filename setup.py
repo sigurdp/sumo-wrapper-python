@@ -42,7 +42,7 @@ setup(
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3.7"
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
     use_scm_version={"write_to": "src/sumo/wrapper/version.py"},
