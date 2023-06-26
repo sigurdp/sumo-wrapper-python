@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages
-from pip._internal.req import parse_requirements as parse
+import pathlib
 from urllib.parse import urlparse
+from pip._internal.req import parse_requirements as parse
+from setuptools import find_packages, setup
 
 
 def _format_requirement(req):
@@ -32,6 +33,8 @@ EXTRAS_REQUIRE = {"docs": REQUIREMENTS_DOCS, "test": REQUIREMENTS_TEST}
 setup(
     name="sumo-wrapper-python",
     description="Python wrapper for the Sumo API",
+    long_description=pathlib.Path("README.md").read_text(),
+    long_description_content_type="text/markdown",
     license="Apache 2.0",
     url="https://github.com/equinor/sumo-wrapper-python",
     keywords="sumo, python",
@@ -39,7 +42,8 @@ setup(
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3.7" "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.7"
+        "Programming Language :: Python :: 3.8",
     ],
     use_scm_version={"write_to": "src/sumo/wrapper/version.py"},
     author="Equinor ASA",
