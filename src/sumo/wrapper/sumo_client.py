@@ -1,13 +1,14 @@
-import requests
-import jwt
-import time
 import logging
+import time
 
-from .config import APP_REGISTRATION, TENANT_ID
-from ._new_auth import NewAuth
-from ._request_error import raise_request_error_exception
+import httpx
+import jwt
+
 from ._blob_client import BlobClient
 from ._logging import LogHandlerSumo
+from ._new_auth import NewAuth
+from ._request_error import raise_request_error_exception
+from .config import APP_REGISTRATION, TENANT_ID
 
 logger = logging.getLogger("sumo.wrapper")
 
@@ -97,6 +98,10 @@ class SumoClient:
                 sumo = SumoClient("dev")
 
                 sumo.blob_client.upload_blob(blob, blob_url)
+
+            Uploading blob async::
+
+                await sumo.blob_client.upload_blob_async(blob, blob_url)
         """
 
         return self._blob_client
@@ -190,13 +195,14 @@ class SumoClient:
             "authorization": f"Bearer {token}",
         }
 
-        response = requests.get(
+        response = httpx.get(
             f"{self.base_url}{path}",
             params=self._process_params(params),
             headers=headers,
+            follow_redirects=True,
         )
 
-        if not response.ok:
+        if response.is_error:
             raise_request_error_exception(response.status_code, response.text)
 
         if "/blob" in path:
@@ -210,7 +216,7 @@ class SumoClient:
         blob: bytes = None,
         json: dict = None,
         params: dict = None,
-    ) -> requests.Response:
+    ) -> httpx.Response:
         """Performs a POST-request to the Sumo API.
 
         Takes either blob or json as a payload,
@@ -262,7 +268,7 @@ class SumoClient:
         content_length = 0
 
         if blob or json:
-            content_length = len(json) if json else len(blob)
+            content_length = len(str(json)) if json else len(blob)
 
         headers = {
             "Content-Type": content_type,
@@ -271,24 +277,24 @@ class SumoClient:
         }
 
         try:
-            response = requests.post(
+            response = httpx.post(
                 f"{self.base_url}{path}",
                 data=blob,
                 json=json,
                 headers=headers,
                 params=params,
             )
-        except requests.exceptions.ProxyError as err:
+        except httpx.ProxyError as err:
             raise_request_error_exception(503, err)
 
-        if not response.ok:
+        if response.is_error:
             raise_request_error_exception(response.status_code, response.text)
 
         return response
 
     def put(
         self, path: str, blob: bytes = None, json: dict = None
-    ) -> requests.Response:
+    ) -> httpx.Response:
         """Performs a PUT-request to the Sumo API.
 
         Takes either blob or json as a payload,
@@ -317,17 +323,17 @@ class SumoClient:
         headers = {
             "Content-Type": content_type,
             "authorization": f"Bearer {token}",
-            "Content-Length": str(len(json) if json else len(blob)),
+            "Content-Length": str(len(str(json)) if json else len(blob)),
         }
 
         try:
-            response = requests.put(
+            response = httpx.put(
                 f"{self.base_url}{path}", data=blob, json=json, headers=headers
             )
-        except requests.exceptions.ProxyError as err:
+        except httpx.ProxyError as err:
             raise_request_error_exception(503, err)
 
-        if not response.ok:
+        if response.is_error:
             raise_request_error_exception(response.status_code, response.text)
 
         return response
@@ -357,9 +363,9 @@ class SumoClient:
             "Authorization": f"Bearer {token}",
         }
 
-        response = requests.delete(f"{self.base_url}{path}", headers=headers)
+        response = httpx.delete(f"{self.base_url}{path}", headers=headers)
 
-        if not response.ok:
+        if response.is_error:
             raise_request_error_exception(response.status_code, response.text)
 
         return response.json()
@@ -381,3 +387,221 @@ class SumoClient:
         handler = LogHandlerSumo(self)
         logger.addHandler(handler)
         return logger
+
+    async def get_async(self, path: str, **params):
+        """Performs an async GET-request to the Sumo API.
+
+        Args:
+            path: Path to a Sumo endpoint
+            params: Keyword arguments treated as query parameters
+
+        Returns:
+            Sumo JSON response as a dictionary
+
+        Examples:
+            Retrieving user data from Sumo::
+
+                sumo = SumoClient("dev")
+
+                userdata = await sumo.getAsync(path="/userdata")
+
+            Searching for cases::
+
+                sumo = SuomClient("dev")
+
+                cases = await sumo.getAsync(
+                    path="/search",
+                    query="class:case",
+                    size=3
+                )
+        """
+        token = self._retrieve_token()
+
+        headers = {
+            "Content-Type": "application/json",
+            "authorization": f"Bearer {token}",
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.base_url}{path}",
+                params=self._process_params(params),
+                headers=headers,
+            )
+
+        if response.is_error:
+            raise_request_error_exception(response.status_code, response.text)
+
+        if "/blob" in path:
+            return response.content
+
+        return response.json()
+
+    async def post_async(
+        self,
+        path: str,
+        blob: bytes = None,
+        json: dict = None,
+        params: dict = None,
+    ) -> httpx.Response:
+        """Performs an async POST-request to the Sumo API.
+
+        Takes either blob or json as a payload,
+        will raise an error if both are provided.
+
+        Args:
+            path: Path to a Sumo endpoint
+            blob: Blob payload
+            json: Json payload
+
+        Returns:
+            Sumo response object
+
+        Raises:
+            ValueError: If both blob and json parameters have been provided
+
+        Examples:
+            Uploading case metadata::
+
+                case_metadata = {...}
+                sumo = SumoClient("dev")
+
+                new_case = await sumo.postAsync(
+                    path="/objects",
+                    json=case_metadata
+                )
+
+                new_case_id = new_case.json()["_id"]
+
+            Uploading object metadata::
+
+                object_metadata = {...}
+                sumo = SumoClient("dev")
+
+                new_objet = await sumo.postAsync(
+                    path=f"/objects('{new_case_id}')",
+                    json=object_metadata
+                )
+        """
+
+        token = self._retrieve_token()
+
+        if blob and json:
+            raise ValueError("Both blob and json given to post.")
+
+        content_type = (
+            "application/octet-stream" if blob else "application/json"
+        )
+        content_length = 0
+
+        if blob or json:
+            content_length = len(str(json)) if json else len(blob)
+
+        headers = {
+            "Content-Type": content_type,
+            "authorization": f"Bearer {token}",
+            "Content-Length": str(content_length),
+        }
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    url=f"{self.base_url}{path}",
+                    data=blob,
+                    json=json,
+                    headers=headers,
+                    params=params,
+                )
+        except httpx.ProxyError as err:
+            raise_request_error_exception(503, err)
+
+        if response.is_error:
+            raise_request_error_exception(response.status_code, response.text)
+
+        return response
+
+    async def put_async(
+        self, path: str, blob: bytes = None, json: dict = None
+    ) -> httpx.Response:
+        """Performs an async PUT-request to the Sumo API.
+
+        Takes either blob or json as a payload,
+        will raise an error if both are provided.
+
+        Args:
+            path: Path to a Sumo endpoint
+            blob: Blob payload
+            json: Json payload
+
+        Returns:
+            Sumo response object
+        """
+
+        token = self._retrieve_token()
+
+        if blob and json:
+            raise ValueError("Both blob and json given to post")
+
+        content_type = (
+            "application/json"
+            if json is not None
+            else "application/octet-stream"
+        )
+
+        headers = {
+            "Content-Type": content_type,
+            "authorization": f"Bearer {token}",
+            "Content-Length": str(len(str(json)) if json else len(blob)),
+        }
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.put(
+                    url=f"{self.base_url}{path}",
+                    data=blob,
+                    json=json,
+                    headers=headers,
+                )
+        except httpx.ProxyError as err:
+            raise_request_error_exception(503, err)
+
+        if response.is_error:
+            raise_request_error_exception(response.status_code, response.text)
+
+        return response
+
+    async def delete_async(self, path: str) -> dict:
+        """Performs an async DELETE-request to the Sumo API.
+
+        Args:
+            path: Path to a Sumo endpoint
+
+        Returns:
+            Sumo JSON resposne as a dictionary
+
+        Examples:
+            Deleting object::
+
+                object_id = ...
+                sumo = SumoClient("dev")
+
+                await sumo.deleteAsync(path=f"/objects('{object_id}')")
+        """
+
+        token = self._retrieve_token()
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.delete(
+                url=f"{self.base_url}{path}",
+                headers=headers,
+            )
+
+        if response.is_error:
+            raise_request_error_exception(response.status_code, response.text)
+
+        return response.json()

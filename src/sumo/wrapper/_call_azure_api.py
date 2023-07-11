@@ -1,4 +1,4 @@
-import requests
+import httpx
 import logging
 
 from ._auth import Auth
@@ -154,9 +154,9 @@ class CallAzureApi:
 
         headers = {"Content-Type": "application/json", "Authorization": bearer}
 
-        response = requests.get(url, headers=headers)
+        response = httpx.get(url, headers=headers)
 
-        if not response.ok:
+        if response.is_error:
             _raise_request_error_exception(response.status_code, response.text)
 
         return response.json()
@@ -182,9 +182,9 @@ class CallAzureApi:
 
         headers = {"Content-Type": "html/text", "Authorization": bearer}
 
-        response = requests.get(url, headers=headers, stream=True)
+        response = httpx.get(url, headers=headers)
 
-        if not response.ok:
+        if response.is_error:
             _raise_request_error_exception(response.status_code, response.text)
 
         return None
@@ -210,9 +210,9 @@ class CallAzureApi:
 
         headers = {"Content-Type": "application/json", "Authorization": bearer}
 
-        response = requests.get(url, headers=headers)
+        response = httpx.get(url, headers=headers)
 
-        if not response.ok:
+        if response.is_error:
             _raise_request_error_exception(response.status_code, response.text)
 
         return response.content
@@ -249,11 +249,11 @@ class CallAzureApi:
         }
 
         try:
-            response = requests.post(url, data=blob, json=json, headers=headers)
-        except requests.exceptions.ProxyError as err:
+            response = httpx.post(url, data=blob, json=json, headers=headers)
+        except httpx.ProxyError as err:
             _raise_request_error_exception(503, err)
 
-        if not response.ok:
+        if response.is_error:
             _raise_request_error_exception(response.status_code, response.text)
 
         return response
@@ -293,11 +293,11 @@ class CallAzureApi:
             headers["Authorization"] = bearer
 
         try:
-            response = requests.put(url, data=blob, json=json, headers=headers)
-        except requests.exceptions.ProxyError as err:
+            response = httpx.put(url, data=blob, json=json, headers=headers)
+        except httpx.ProxyError as err:
             _raise_request_error_exception(503, err)
 
-        if not response.ok:
+        if response.is_error:
             _raise_request_error_exception(response.status_code, response.text)
 
         return response
@@ -321,9 +321,9 @@ class CallAzureApi:
             "Authorization": bearer,
         }
 
-        response = requests.delete(url, headers=headers)
+        response = httpx.delete(url, headers=headers)
 
-        if not response.ok:
+        if response.is_error:
             _raise_request_error_exception(response.status_code, response.text)
 
         return response.json()
