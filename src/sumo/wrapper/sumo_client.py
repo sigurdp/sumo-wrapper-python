@@ -12,7 +12,7 @@ from .config import APP_REGISTRATION, TENANT_ID
 
 logger = logging.getLogger("sumo.wrapper")
 
-DEFAULT_TIMEOUT = httpx.Timeout(10.0)
+DEFAULT_TIMEOUT = httpx.Timeout(20.0)
 
 
 class SumoClient:
