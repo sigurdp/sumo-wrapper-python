@@ -12,6 +12,8 @@ from .config import APP_REGISTRATION, TENANT_ID
 
 logger = logging.getLogger("sumo.wrapper")
 
+DEFAULT_TIMEOUT = httpx.Timeout(20.0)
+
 
 class SumoClient:
     """Authenticate and perform requests to the Sumo API."""
@@ -200,7 +202,7 @@ class SumoClient:
             params=self._process_params(params),
             headers=headers,
             follow_redirects=True,
-            timeout=None,
+            timeout=DEFAULT_TIMEOUT,
         )
 
         if response.is_error:
@@ -284,7 +286,7 @@ class SumoClient:
                 json=json,
                 headers=headers,
                 params=params,
-                timeout=None,
+                timeout=DEFAULT_TIMEOUT,
             )
         except httpx.ProxyError as err:
             raise_request_error_exception(503, err)
@@ -330,7 +332,11 @@ class SumoClient:
 
         try:
             response = httpx.put(
-                f"{self.base_url}{path}", data=blob, json=json, headers=headers
+                f"{self.base_url}{path}",
+                data=blob,
+                json=json,
+                headers=headers,
+                timeout=DEFAULT_TIMEOUT,
             )
         except httpx.ProxyError as err:
             raise_request_error_exception(503, err)
@@ -365,7 +371,11 @@ class SumoClient:
             "Authorization": f"Bearer {token}",
         }
 
-        response = httpx.delete(f"{self.base_url}{path}", headers=headers)
+        response = httpx.delete(
+            f"{self.base_url}{path}",
+            headers=headers,
+            timeout=DEFAULT_TIMEOUT,
+        )
 
         if response.is_error:
             raise_request_error_exception(response.status_code, response.text)
@@ -429,7 +439,7 @@ class SumoClient:
                 f"{self.base_url}{path}",
                 params=self._process_params(params),
                 headers=headers,
-                timeout=None,
+                timeout=DEFAULT_TIMEOUT,
             )
 
         if response.is_error:
@@ -514,7 +524,7 @@ class SumoClient:
                     json=json,
                     headers=headers,
                     params=params,
-                    timeout=None,
+                    timeout=DEFAULT_TIMEOUT,
                 )
         except httpx.ProxyError as err:
             raise_request_error_exception(503, err)
@@ -565,6 +575,7 @@ class SumoClient:
                     data=blob,
                     json=json,
                     headers=headers,
+                    timeout=DEFAULT_TIMEOUT,
                 )
         except httpx.ProxyError as err:
             raise_request_error_exception(503, err)
@@ -603,6 +614,7 @@ class SumoClient:
             response = await client.delete(
                 url=f"{self.base_url}{path}",
                 headers=headers,
+                timeout=DEFAULT_TIMEOUT,
             )
 
         if response.is_error:
