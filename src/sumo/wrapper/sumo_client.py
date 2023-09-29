@@ -2,13 +2,15 @@ import logging
 import time
 
 import httpx
+
 import jwt
 
 from ._blob_client import BlobClient
 from ._logging import LogHandlerSumo
 from ._new_auth import NewAuth
-from ._request_error import raise_request_error_exception
 from .config import APP_REGISTRATION, TENANT_ID
+
+from .decorators import http_unpack, raise_for_status, http_retry
 
 logger = logging.getLogger("sumo.wrapper")
 
@@ -162,6 +164,9 @@ class SumoClient:
 
         return None if prefixed_params == {} else prefixed_params
 
+    @http_unpack
+    @raise_for_status
+    @http_retry
     def get(self, path: str, **params) -> dict:
         """Performs a GET-request to the Sumo API.
 
@@ -205,14 +210,10 @@ class SumoClient:
             timeout=DEFAULT_TIMEOUT,
         )
 
-        if response.is_error:
-            raise_request_error_exception(response.status_code, response.text)
+        return response
 
-        if "/blob" in path:
-            return response.content
-
-        return response.json()
-
+    @raise_for_status
+    @http_retry
     def post(
         self,
         path: str,
@@ -259,7 +260,6 @@ class SumoClient:
                     json=object_metadata
                 )
         """
-
         token = self._retrieve_token()
 
         if blob and json:
@@ -274,23 +274,18 @@ class SumoClient:
             "authorization": f"Bearer {token}",
         }
 
-        try:
-            response = httpx.post(
-                f"{self.base_url}{path}",
-                data=blob,
-                json=json,
-                headers=headers,
-                params=params,
-                timeout=DEFAULT_TIMEOUT,
-            )
-        except httpx.ProxyError as err:
-            raise_request_error_exception(503, err)
-
-        if response.is_error:
-            raise_request_error_exception(response.status_code, response.text)
-
+        response = httpx.post(
+            f"{self.base_url}{path}",
+            content=blob,
+            json=json,
+            headers=headers,
+            params=params,
+            timeout=DEFAULT_TIMEOUT,
+        )
         return response
 
+    @raise_for_status
+    @http_retry
     def put(
         self, path: str, blob: bytes = None, json: dict = None
     ) -> httpx.Response:
@@ -324,22 +319,19 @@ class SumoClient:
             "authorization": f"Bearer {token}",
         }
 
-        try:
-            response = httpx.put(
-                f"{self.base_url}{path}",
-                data=blob,
-                json=json,
-                headers=headers,
-                timeout=DEFAULT_TIMEOUT,
-            )
-        except httpx.ProxyError as err:
-            raise_request_error_exception(503, err)
-
-        if response.is_error:
-            raise_request_error_exception(response.status_code, response.text)
+        response = httpx.put(
+            f"{self.base_url}{path}",
+            content=blob,
+            json=json,
+            headers=headers,
+            timeout=DEFAULT_TIMEOUT,
+        )
 
         return response
 
+    @http_unpack
+    @raise_for_status
+    @http_retry
     def delete(self, path: str) -> dict:
         """Performs a DELETE-request to the Sumo API.
 
@@ -371,10 +363,7 @@ class SumoClient:
             timeout=DEFAULT_TIMEOUT,
         )
 
-        if response.is_error:
-            raise_request_error_exception(response.status_code, response.text)
-
-        return response.json()
+        return response
 
     def getLogger(self, name):
         """Gets a logger object that sends log objects into the message_log
@@ -394,6 +383,9 @@ class SumoClient:
         logger.addHandler(handler)
         return logger
 
+    @http_unpack
+    @raise_for_status
+    @http_retry
     async def get_async(self, path: str, **params):
         """Performs an async GET-request to the Sumo API.
 
@@ -436,14 +428,10 @@ class SumoClient:
                 timeout=DEFAULT_TIMEOUT,
             )
 
-        if response.is_error:
-            raise_request_error_exception(response.status_code, response.text)
+        return response
 
-        if "/blob" in path:
-            return response.content
-
-        return response.json()
-
+    @raise_for_status
+    @http_retry
     async def post_async(
         self,
         path: str,
@@ -505,24 +493,20 @@ class SumoClient:
             "authorization": f"Bearer {token}",
         }
 
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    url=f"{self.base_url}{path}",
-                    data=blob,
-                    json=json,
-                    headers=headers,
-                    params=params,
-                    timeout=DEFAULT_TIMEOUT,
-                )
-        except httpx.ProxyError as err:
-            raise_request_error_exception(503, err)
-
-        if response.is_error:
-            raise_request_error_exception(response.status_code, response.text)
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url=f"{self.base_url}{path}",
+                content=blob,
+                json=json,
+                headers=headers,
+                params=params,
+                timeout=DEFAULT_TIMEOUT,
+            )
 
         return response
 
+    @raise_for_status
+    @http_retry
     async def put_async(
         self, path: str, blob: bytes = None, json: dict = None
     ) -> httpx.Response:
@@ -556,23 +540,20 @@ class SumoClient:
             "authorization": f"Bearer {token}",
         }
 
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.put(
-                    url=f"{self.base_url}{path}",
-                    data=blob,
-                    json=json,
-                    headers=headers,
-                    timeout=DEFAULT_TIMEOUT,
-                )
-        except httpx.ProxyError as err:
-            raise_request_error_exception(503, err)
-
-        if response.is_error:
-            raise_request_error_exception(response.status_code, response.text)
+        async with httpx.AsyncClient() as client:
+            response = await client.put(
+                url=f"{self.base_url}{path}",
+                content=blob,
+                json=json,
+                headers=headers,
+                timeout=DEFAULT_TIMEOUT,
+            )
 
         return response
 
+    @http_unpack
+    @raise_for_status
+    @http_retry
     async def delete_async(self, path: str) -> dict:
         """Performs an async DELETE-request to the Sumo API.
 
@@ -605,7 +586,4 @@ class SumoClient:
                 timeout=DEFAULT_TIMEOUT,
             )
 
-        if response.is_error:
-            raise_request_error_exception(response.status_code, response.text)
-
-        return response.json()
+        return response
