@@ -199,7 +199,7 @@ class AuthProviderManaged(AuthProvider):
         return
 
     def get_token(self):
-        return self._app.get_token(self._scope)
+        return self._app.get_token(self._scope).token
 
     pass
 
