@@ -9,7 +9,7 @@ from ._logging import LogHandlerSumo
 from ._auth_provider import get_auth_provider
 from .config import APP_REGISTRATION, TENANT_ID, AUTHORITY_HOST_URI
 
-from ._decorators import raise_for_status, http_retry
+from ._decorators import raise_for_status, http_retry, raise_for_status_async
 
 logger = logging.getLogger("sumo.wrapper")
 
@@ -328,7 +328,7 @@ class SumoClient:
         logger.addHandler(handler)
         return logger
 
-    @raise_for_status
+    @raise_for_status_async
     @http_retry
     async def get_async(self, path: str, params: dict = None):
         """Performs an async GET-request to the Sumo API.
@@ -364,7 +364,7 @@ class SumoClient:
             "authorization": f"Bearer {token}",
         }
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
             response = await client.get(
                 f"{self.base_url}{path}",
                 params=params,
@@ -374,7 +374,7 @@ class SumoClient:
 
         return response
 
-    @raise_for_status
+    @raise_for_status_async
     @http_retry
     async def post_async(
         self,
@@ -450,7 +450,7 @@ class SumoClient:
 
         return response
 
-    @raise_for_status
+    @raise_for_status_async
     @http_retry
     async def put_async(
         self, path: str, blob: bytes = None, json: dict = None
@@ -496,7 +496,7 @@ class SumoClient:
 
         return response
 
-    @raise_for_status
+    @raise_for_status_async
     @http_retry
     async def delete_async(self, path: str, params: dict = None) -> dict:
         """Performs an async DELETE-request to the Sumo API.
