@@ -47,7 +47,7 @@ def _get_blob_uri(C, object_id):
 
 
 def _download_object(C, object_id):
-    json = C.api.get(f"/objects('{object_id}')")
+    json = C.api.get(f"/objects('{object_id}')").json()
 
     return json
 
@@ -56,12 +56,14 @@ def _upload_child_level_json(C, parent_id, json):
     response = C.api.post(f"/objects('{parent_id}')", json=json)
 
     if not 200 <= response.status_code < 202:
-        raise Exception(f"Response: {response.status_code}, Text: {response.text}")
+        raise Exception(
+            f"Response: {response.status_code}, Text: {response.text}"
+        )
     return response
 
 
 def _delete_object(C, object_id):
-    response = C.api.delete(f"/objects('{object_id}')")
+    response = C.api.delete(f"/objects('{object_id}')").json()
 
     return response
 
@@ -111,7 +113,9 @@ def test_upload_search_delete_ensemble_child(token):
 
     fmu_surface_metadata["fmu"]["case"]["uuid"] = case_uuid
 
-    fmu_surface_id = fmu_surface_metadata.get("fmu").get("realization").get("id")
+    fmu_surface_id = (
+        fmu_surface_metadata.get("fmu").get("realization").get("id")
+    )
     response_surface = _upload_child_level_json(
         C=C, parent_id=case_id, json=fmu_surface_metadata
     )
@@ -123,7 +127,9 @@ def test_upload_search_delete_ensemble_child(token):
     blob_url = response_surface.json().get("blob_url")
 
     # Upload BLOB
-    response_blob = _upload_blob(C=C, blob=B, url=blob_url, object_id=surface_id)
+    response_blob = _upload_blob(
+        C=C, blob=B, url=blob_url, object_id=surface_id
+    )
     assert 200 <= response_blob.status_code <= 202
 
     sleep(4)
@@ -131,14 +137,18 @@ def test_upload_search_delete_ensemble_child(token):
     # Search for ensemble
     query = f"fmu.case.uuid:{case_uuid}"
 
-    search_results = C.api.get("/searchroot", query=query, select=["_source"])
+    search_results = C.api.get(
+        "/searchroot", params={"$query": query, "$select": ["_source"]}
+    ).json()
 
     hits = search_results.get("hits").get("hits")
     assert len(hits) == 1
     assert hits[0].get("_id") == case_id
 
     # Search for child object
-    search_results = C.api.get("/search", query=query, select=["_source"])
+    search_results = C.api.get(
+        "/search", {"$query": query, "$select": ["_source"]}
+    ).json()
 
     total = search_results.get("hits").get("total").get("value")
     assert total == 2
@@ -147,7 +157,7 @@ def test_upload_search_delete_ensemble_child(token):
     assert get_result["_id"] == surface_id
 
     # Search for blob
-    bin_obj = C.api.get(f"/objects('{surface_id}')/blob")
+    bin_obj = C.api.get(f"/objects('{surface_id}')/blob").content
     assert bin_obj == B
 
     # Delete Ensemble
@@ -157,14 +167,18 @@ def test_upload_search_delete_ensemble_child(token):
     sleep(40)
 
     # Search for ensemble
-    search_results = C.api.get("/searchroot", query=query, select=["_source"])
+    search_results = C.api.get(
+        "/searchroot", {"$query": query, "$select": ["_source"]}
+    ).json()
 
     hits = search_results.get("hits").get("hits")
 
     assert len(hits) == 0
 
     # Search for child object
-    search_results = C.api.get("/search", query=query, select=["_source"])
+    search_results = C.api.get(
+        "/search", {"$query": query, "$select": ["_source"]}
+    ).json()
     total = search_results.get("hits").get("total").get("value")
     assert total == 0
 
@@ -189,11 +203,10 @@ def test_upload_duplicate_ensemble(token):
 
     with open("tests/testdata/case.yml", "r") as stream:
         fmu_metadata2 = yaml.safe_load(stream)
-    
+
     case_uuid = str(uuid.uuid4())
     fmu_metadata1["fmu"]["case"]["uuid"] = case_uuid
     fmu_metadata2["fmu"]["case"]["uuid"] = case_uuid
-
 
     # upload case metadata, get object_id
     response1 = _upload_parent_object(C=C, json=fmu_metadata1)
