@@ -20,7 +20,7 @@ def raise_for_status_async(func):
         # so we could simply write
         # return func(*args, **kwargs).raise_for_status()
         response = await func(*args, **kwargs)
-        # response.raise_for_status()
+        response.raise_for_status()
         return response
 
     return wrapper
