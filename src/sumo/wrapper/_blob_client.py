@@ -1,6 +1,6 @@
 import httpx
 
-from ._decorators import raise_for_status, http_retry
+from ._decorators import raise_for_status, http_retry, raise_for_status_async
 
 
 class BlobClient:
@@ -25,7 +25,7 @@ class BlobClient:
 
         return response
 
-    @raise_for_status
+    @raise_for_status_async
     @http_retry
     async def upload_blob_async(self, blob: bytes, url: str):
         """Upload a blob async.
